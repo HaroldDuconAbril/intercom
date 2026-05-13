@@ -2,35 +2,56 @@
 import streamlit as st
 from datetime import datetime
 
-st.set_page_config(page_title="Explorador de soluciones IA para Intercom", page_icon="🧭", layout="wide")
+st.set_page_config(page_title="Explorador de inversión IA para Intercom", page_icon="💸", layout="wide")
+
+USD_TO_COP_DEFAULT = 3900
 
 SOLUTIONS = [
     {
-        "id": "openai_custom_api",
-        "nombre": "OpenAI / Azure OpenAI + Intercom API + Webhooks",
+        "id": "python_custom_api",
+        "nombre": "Solución propia con Python + Intercom API/Webhooks + OpenAI/Azure OpenAI",
         "categoria": "Código / Backend propio",
         "nivel": "Avanzado",
         "costo": "Medio-Alto",
         "tiempo": "2 a 8 semanas",
-        "mejor_para": "Cliente que no quiere Fin y necesita control total del bot, reglas, prompts, base de conocimiento y escalamiento.",
-        "descripcion": "Crear un backend propio en Python/FastAPI que reciba eventos de Intercom por Webhook, consulte una base de conocimiento, llame a OpenAI/Azure OpenAI y responda o escale a un agente.",
-        "arquitectura": "Intercom Messenger -> Webhook Intercom -> Backend Python -> Base de conocimiento/RAG -> OpenAI/Azure OpenAI -> Respuesta en Intercom o asignación a agente",
-        "pros": ["Máximo control", "Permite preguntas abiertas", "Se conecta con CRM/ERP/BD", "Reglas personalizadas de espera y escalamiento", "Puede usar modelos distintos a Fin"],
-        "contras": ["Requiere desarrollo", "Debe manejar seguridad, tokens, logs, límites API y errores", "Necesita mantenimiento"],
-        "pasos": [
-            "Crear una app privada en Intercom Developer Hub y obtener token.",
-            "Configurar Webhooks de Intercom para eventos de conversación/mensaje.",
-            "Crear backend en Python con FastAPI o Flask.",
-            "Construir base de conocimiento: FAQs, horarios, políticas, sedes, pagos, garantías.",
-            "Agregar búsqueda semántica/RAG si hay documentos extensos.",
-            "Llamar a OpenAI/Azure OpenAI con prompt seguro y contexto recuperado.",
-            "Si la respuesta tiene baja confianza, contiene palabras sensibles o el cliente pide humano, asignar a equipo/agente.",
-            "Si cola alta o espera > 60 segundos, enviar mensaje de alta demanda.",
-            "Guardar métricas: resuelto por bot, escalado, tiempo de respuesta, temas frecuentes.",
-            "Probar con conversaciones reales antes de producción."
+        "mejor_para": "Cliente que no quiere Fin y necesita control total del bot, reglas, prompts, base de conocimiento, alta demanda y escalamiento.",
+        "descripcion": "Desarrollar un backend propio en Python/FastAPI que reciba eventos de Intercom, consulte FAQs/documentos, use OpenAI o Azure OpenAI y responda o escale a agente.",
+        "arquitectura": "Intercom Messenger -> Webhook Intercom -> Backend Python/FastAPI -> FAQ/RAG -> OpenAI/Azure OpenAI -> Respuesta o asignación a agente",
+        "pros": ["Máximo control", "Preguntas abiertas", "Reglas de espera y alta demanda", "Integración con CRM/ERP/BD", "Escalamiento humano personalizado"],
+        "contras": ["Requiere desarrollo", "Mantenimiento técnico", "Seguridad y monitoreo", "Costos de hosting y API"],
+        "necesitas": [
+            "Cuenta activa de Intercom con permisos de Developer Hub/API/Webhooks.",
+            "Token privado de Intercom y configuración de webhooks.",
+            "Cuenta de OpenAI o Azure OpenAI.",
+            "Servidor/API pública: Render, Railway, Azure App Service, AWS, GCP o VPS.",
+            "Base de conocimiento: FAQs, documentos, políticas, horarios, pagos, garantías.",
+            "Base de datos o storage para logs y trazabilidad.",
+            "Equipo técnico: backend Python, QA y alguien de soporte que valide respuestas.",
+            "Políticas de seguridad: manejo de datos personales, secretos y logs."
         ],
-        "ejemplo": "Cliente: ¿Cuál es el horario?\nBot: Nuestro horario es lunes a viernes de 8:00 a.m. a 6:00 p.m.\n\nCliente: Quiero poner una queja por facturación\nBot: Voy a transferirte con un agente para revisar tu caso con seguridad.",
-        "recomendacion": "La mejor opción si el cliente quiere una alternativa robusta a Fin y tiene equipo técnico o presupuesto para desarrollo."
+        "inversion_inicial_usd": (1500, 8000),
+        "mensual_fijo_usd": (80, 600),
+        "mensual_variable": "Tokens IA + hosting + monitoreo. Puede empezar bajo, pero crece con volumen.",
+        "rubros": [
+            ("Desarrollo inicial", "USD 1.500 - 8.000", "Backend, webhooks, lógica de escalamiento, pruebas."),
+            ("Hosting/API", "USD 20 - 200/mes", "Servidor o serverless para recibir webhooks."),
+            ("OpenAI/Azure OpenAI", "Según tokens", "Costo por tokens de entrada/salida."),
+            ("Vector DB/RAG opcional", "USD 0 - 150/mes", "Solo si se usan documentos extensos."),
+            ("Mantenimiento", "USD 100 - 500/mes", "Ajustes, monitoreo, prompts y errores.")
+        ],
+        "pasos": [
+            "Crear app privada en Intercom Developer Hub y obtener token.",
+            "Configurar webhooks para eventos de conversación/mensaje.",
+            "Crear backend Python con FastAPI o Flask.",
+            "Construir base de conocimiento y reglas de negocio.",
+            "Integrar OpenAI/Azure OpenAI con prompt controlado.",
+            "Implementar clasificación: FAQ, pregunta abierta, alta demanda, escalar.",
+            "Responder o asignar conversación a agente/equipo en Intercom.",
+            "Registrar métricas y logs.",
+            "Probar con conversaciones reales y publicar."
+        ],
+        "ejemplo": "Cliente: ¿Cuál es el horario?\nBot: Nuestro horario es lunes a viernes de 8:00 a.m. a 6:00 p.m.\n\nCliente: Tengo una queja por facturación\nBot: Voy a transferirte con un agente para revisar tu caso con seguridad.",
+        "recomendacion": "La opción más completa para producción si el cliente quiere evitar Fin y mantener control total."
     },
     {
         "id": "zapier_openai",
@@ -39,23 +60,39 @@ SOLUTIONS = [
         "nivel": "Básico-Medio",
         "costo": "Medio",
         "tiempo": "1 a 5 días",
-        "mejor_para": "Prototipo rápido o automatizaciones simples sin desarrollar backend completo.",
-        "descripcion": "Crear Zaps donde un evento de Intercom dispara una acción en ChatGPT/OpenAI y luego se usa Intercom o Webhooks para registrar nota, sugerir respuesta o actualizar ticket/conversación.",
-        "arquitectura": "Intercom Trigger -> Zapier -> ChatGPT/OpenAI Action -> Intercom Action/Webhook -> Nota, respuesta o escalamiento",
-        "pros": ["Rápido", "No requiere mucho código", "Fácil de demostrar", "Conecta muchas apps"],
-        "contras": ["Puede quedarse corto para lógica compleja", "Costos por tareas", "Menor control de seguridad y reintentos", "Responder directamente en conversaciones puede requerir acciones/API avanzadas"],
-        "pasos": [
-            "Crear cuenta en Zapier y conectar Intercom.",
-            "Crear Zap con trigger de Intercom: nueva conversación, ticket o evento disponible.",
-            "Agregar acción ChatGPT/OpenAI para clasificar intención o generar respuesta.",
-            "Agregar filtros: si es FAQ responder/sugerir; si es reclamo/factura/cancelación escalar.",
-            "Agregar acción Intercom: crear nota, actualizar ticket, aplicar tag o usar Webhook/API para responder.",
-            "Agregar paso de alta demanda: si hay tag/cola/condición, enviar mensaje de espera.",
-            "Probar con 20-50 preguntas reales y ajustar prompts.",
-            "Publicar Zap y monitorear errores."
+        "mejor_para": "Demo rápida o automatizaciones simples sin backend propio.",
+        "descripcion": "Crear Zaps donde Intercom dispara una acción en ChatGPT/OpenAI y luego se registra nota, tag, ticket, respuesta o escalamiento.",
+        "arquitectura": "Intercom Trigger -> Zapier -> ChatGPT/OpenAI -> Filtros/Paths -> Intercom Action/Webhook",
+        "pros": ["Muy rápido", "No-code", "Buen prototipo", "Conecta muchas apps"],
+        "contras": ["Costos por tareas", "Menor control", "Puede ser limitado para responder directo", "Dependencia de Zapier"],
+        "necesitas": [
+            "Cuenta de Zapier con plan que permita multi-step, webhooks o apps premium si aplica.",
+            "Cuenta de Intercom conectada a Zapier.",
+            "Cuenta de OpenAI/ChatGPT conectada a Zapier.",
+            "Definir triggers: nueva conversación, ticket, tag o evento disponible.",
+            "Prompts de clasificación y respuesta.",
+            "Filtros/Paths para FAQ, alta demanda y escalamiento.",
+            "Pruebas para validar consumo de tareas."
         ],
-        "ejemplo": "Trigger: Nueva conversación en Intercom\nAction 1: ChatGPT clasifica intención\nAction 2: Si intención = horario, generar respuesta\nAction 3: Intercom aplica tag 'respondido_bot' o envía respuesta vía API/Webhook",
-        "recomendacion": "Muy buena opción para una demo rápida, pero no la dejaría como solución crítica si el volumen es alto o hay reglas complejas."
+        "inversion_inicial_usd": (100, 800),
+        "mensual_fijo_usd": (20, 150),
+        "mensual_variable": "Tareas Zapier + tokens OpenAI. En flujos multi-step, cada acción consume tareas.",
+        "rubros": [
+            ("Configuración inicial", "USD 100 - 800", "Zaps, prompts, pruebas."),
+            ("Zapier", "Desde USD 19,99/mes aprox.", "Depende de tareas y plan."),
+            ("OpenAI", "Según tokens", "Costo de generación/clasificación."),
+            ("Mantenimiento", "USD 50 - 200/mes", "Ajustes a Zaps y prompts.")
+        ],
+        "pasos": [
+            "Crear Zap con trigger de Intercom.",
+            "Agregar acción ChatGPT/OpenAI para clasificar intención.",
+            "Crear Paths/Filtros: FAQ, agente, alta demanda.",
+            "Agregar acción Intercom: tag, nota, ticket o webhook/API.",
+            "Probar con preguntas reales.",
+            "Publicar y monitorear tareas consumidas."
+        ],
+        "ejemplo": "Trigger: Nueva conversación -> ChatGPT clasifica -> Si es horario responde/sugiere -> Si es reclamo aplica tag y escala.",
+        "recomendacion": "Ideal para validar rápido, no necesariamente para alto volumen crítico."
     },
     {
         "id": "make_openai",
@@ -64,23 +101,39 @@ SOLUTIONS = [
         "nivel": "Medio",
         "costo": "Medio",
         "tiempo": "2 a 10 días",
-        "mejor_para": "Flujos visuales más flexibles que Zapier, con routers, filtros, escenarios y HTTP/API personalizados.",
-        "descripcion": "Diseñar escenarios en Make que reciban eventos de Intercom, llamen a OpenAI, consulten Google Sheets/Notion/Airtable como base de conocimiento y actualicen Intercom.",
-        "arquitectura": "Intercom/Webhook -> Make Scenario -> Router de intención -> OpenAI + Knowledge Base -> Intercom API",
-        "pros": ["Muy visual", "Más flexible para escenarios complejos", "Buen manejo de routers/filtros", "Puede usar HTTP para endpoints no soportados"],
-        "contras": ["Requiere buena configuración", "Puede ser frágil si cambian campos/API", "Costos por operaciones", "No reemplaza totalmente un backend robusto"],
+        "mejor_para": "Flujos visuales con routers, filtros y llamadas HTTP/API más flexibles.",
+        "descripcion": "Diseñar escenarios en Make que reciben Intercom, consultan OpenAI y actualizan Intercom con reglas visuales.",
+        "arquitectura": "Intercom/Webhook -> Make Scenario -> Router -> OpenAI + Knowledge Base -> Intercom API",
+        "pros": ["Visual", "Routers/filtros potentes", "HTTP flexible", "Buen costo para prototipos"],
+        "contras": ["Requiere buena configuración", "Costos por créditos", "Puede ser frágil si cambian campos", "Dependencia de Make"],
+        "necesitas": [
+            "Cuenta de Make.",
+            "Módulo Intercom o webhook personalizado.",
+            "Cuenta OpenAI.",
+            "Base de conocimiento en Sheets/Notion/Airtable/BD o documento estructurado.",
+            "Routers para FAQ, escalamiento y alta demanda.",
+            "Manejo de errores y reintentos."
+        ],
+        "inversion_inicial_usd": (200, 1200),
+        "mensual_fijo_usd": (12, 120),
+        "mensual_variable": "Créditos Make + tokens OpenAI + posibles conectores externos.",
+        "rubros": [
+            ("Configuración inicial", "USD 200 - 1.200", "Escenarios, routers, pruebas."),
+            ("Make", "Desde USD 12/mes aprox.", "Depende de créditos."),
+            ("OpenAI", "Según tokens", "Costo por conversación."),
+            ("Mantenimiento", "USD 50 - 250/mes", "Ajustes y monitoreo.")
+        ],
         "pasos": [
             "Crear escenario en Make.",
-            "Configurar módulo Intercom o Webhook personalizado.",
-            "Agregar router: FAQ, alta demanda, escalar, pregunta abierta.",
-            "Conectar base de conocimiento en Google Sheets/Notion/Airtable o HTTP.",
-            "Agregar módulo OpenAI para generar respuesta controlada.",
-            "Responder, etiquetar o asignar conversación usando Intercom/API.",
-            "Crear manejo de errores y reintentos.",
-            "Activar escenario y monitorear operaciones."
+            "Recibir evento Intercom por módulo o webhook.",
+            "Agregar router de intención.",
+            "Consultar FAQ/base de conocimiento.",
+            "Llamar OpenAI si la pregunta es abierta.",
+            "Responder, taggear o asignar vía Intercom/API.",
+            "Activar y monitorear operaciones."
         ],
-        "ejemplo": "Router 1: pregunta contiene 'horario' -> respuesta fija\nRouter 2: contiene 'factura' -> asignar a agente\nRouter 3: otra pregunta -> OpenAI + base de conocimiento",
-        "recomendacion": "Buena alternativa si el cliente quiere no-code pero con más control visual que Zapier."
+        "ejemplo": "Router 1: horario -> respuesta fija. Router 2: factura -> agente. Router 3: pregunta abierta -> OpenAI + contexto.",
+        "recomendacion": "Muy buena alternativa no-code si Zapier se queda corto."
     },
     {
         "id": "n8n_openai",
@@ -89,70 +142,120 @@ SOLUTIONS = [
         "nivel": "Medio-Avanzado",
         "costo": "Bajo-Medio",
         "tiempo": "1 a 3 semanas",
-        "mejor_para": "Equipos que quieren automatización visual pero con opción de self-hosting, control técnico y nodos HTTP/API.",
-        "descripcion": "Usar n8n para recibir eventos, consultar OpenAI, ejecutar lógica, llamar REST APIs y mantener más control que Zapier/Make.",
-        "arquitectura": "Intercom Trigger/Webhook -> n8n Workflow -> OpenAI Node/HTTP -> Reglas -> Intercom Node/API",
-        "pros": ["Puede ser self-hosted", "Flexible", "Bueno para integraciones API", "Menor dependencia de plataformas cerradas"],
-        "contras": ["Requiere administración si se autohospeda", "Necesita conocimiento técnico", "Hay que cuidar seguridad y disponibilidad"],
+        "mejor_para": "Equipos que quieren automatización visual con opción self-hosted y más control técnico.",
+        "descripcion": "Usar n8n para workflows con Intercom, OpenAI, reglas, HTTP y logs; puede ser cloud o self-hosted.",
+        "arquitectura": "Intercom Webhook -> n8n Workflow -> OpenAI Node/HTTP -> IF/Switch -> Intercom API",
+        "pros": ["Self-host opcional", "Flexible", "Bueno para APIs", "Puede ser económico en flujos complejos"],
+        "contras": ["Curva técnica", "Si es self-hosted requiere mantenimiento", "Hay que asegurar disponibilidad"],
+        "necesitas": [
+            "Cuenta n8n Cloud o servidor para self-hosted.",
+            "Credenciales Intercom/API o webhook.",
+            "Cuenta OpenAI.",
+            "Dominio/SSL si es self-hosted.",
+            "Base de conocimiento o conexión a Sheets/DB.",
+            "Monitoreo de ejecuciones y errores."
+        ],
+        "inversion_inicial_usd": (300, 2000),
+        "mensual_fijo_usd": (0, 800),
+        "mensual_variable": "n8n Cloud por ejecuciones o costo de servidor self-hosted + tokens IA.",
+        "rubros": [
+            ("Configuración inicial", "USD 300 - 2.000", "Workflows, API, pruebas."),
+            ("n8n Cloud", "Desde ~20€/mes anual", "Depende de ejecuciones."),
+            ("Self-hosting", "USD 5 - 50/mes", "Servidor, backups, SSL; más mantenimiento."),
+            ("OpenAI", "Según tokens", "Costo por uso."),
+            ("Mantenimiento", "USD 50 - 300/mes", "Actualizaciones y soporte.")
+        ],
         "pasos": [
             "Crear workflow en n8n.",
-            "Agregar trigger de Intercom o Webhook.",
-            "Agregar nodo OpenAI para clasificar/generar respuesta.",
-            "Agregar IF/Switch para FAQ, alta demanda y escalamiento.",
-            "Usar nodo Intercom o HTTP Request para responder/asignar/taggear.",
-            "Guardar logs en Google Sheets/DB.",
-            "Probar y activar."
+            "Configurar webhook o nodo Intercom.",
+            "Agregar OpenAI para clasificar/generar.",
+            "Crear IF/Switch para FAQ, alta demanda y escalamiento.",
+            "Llamar Intercom API para responder/taggear/asignar.",
+            "Guardar logs y activar workflow."
         ],
-        "ejemplo": "Webhook recibe mensaje -> OpenAI clasifica -> IF horario responde -> IF baja confianza asigna a soporte humano",
-        "recomendacion": "Muy buena opción si quieren evitar Fin y tener una solución flexible con menor código que backend propio."
+        "ejemplo": "Webhook recibe mensaje -> OpenAI clasifica -> IF horario responde -> IF baja confianza asigna a agente.",
+        "recomendacion": "Buena para balance entre control y costo; más técnica que Make/Zapier."
     },
     {
-        "id": "botpress_custom",
+        "id": "rag_assistant",
+        "nombre": "Asistente RAG documental + Intercom",
+        "categoria": "IA documental",
+        "nivel": "Avanzado",
+        "costo": "Medio-Alto",
+        "tiempo": "3 a 8 semanas",
+        "mejor_para": "Empresas con manuales, políticas o documentación extensa que necesitan respuestas con base en fuentes.",
+        "descripcion": "Indexar documentos, buscar fragmentos relevantes y generar respuestas con evidencia. Si no encuentra contexto, escala.",
+        "arquitectura": "Intercom -> Backend Python -> Vector DB/Azure AI Search/Pinecone -> LLM -> Intercom",
+        "pros": ["Respuestas basadas en documentos", "Mejor para preguntas abiertas", "Reduce respuestas inventadas", "Escalable"],
+        "contras": ["Mayor desarrollo", "Hay que limpiar documentos", "Requiere evaluación continua", "Costo de búsqueda/vector DB"],
+        "necesitas": [
+            "Todo lo de solución Python propia.",
+            "Documentos oficiales en formato limpio.",
+            "Embeddings y base vectorial o buscador: Azure AI Search, Pinecone, Chroma, pgvector, etc.",
+            "Proceso de actualización de documentos.",
+            "Evaluación de precisión y fuentes."
+        ],
+        "inversion_inicial_usd": (2500, 12000),
+        "mensual_fijo_usd": (150, 1000),
+        "mensual_variable": "Tokens + embeddings + almacenamiento/buscador + mantenimiento documental.",
+        "rubros": [
+            ("Desarrollo inicial", "USD 2.500 - 12.000", "RAG, documentos, backend, pruebas."),
+            ("Vector DB/buscador", "USD 0 - 500/mes", "Depende de volumen y proveedor."),
+            ("OpenAI/Azure OpenAI", "Según tokens", "Embeddings + respuestas."),
+            ("Mantenimiento documental", "USD 100 - 500/mes", "Actualizar y validar contenido.")
+        ],
+        "pasos": [
+            "Recolectar documentos oficiales.",
+            "Limpiar y fragmentar documentos.",
+            "Crear embeddings y cargarlos a vector DB/buscador.",
+            "Integrar Intercom con backend.",
+            "Recuperar contexto relevante por pregunta.",
+            "Responder solo con evidencia suficiente.",
+            "Escalar si no hay confianza.",
+            "Medir precisión y actualizar documentos."
+        ],
+        "ejemplo": "Cliente pregunta garantía -> Bot busca política oficial -> responde con base en el documento -> si no hay claridad, escala.",
+        "recomendacion": "La mejor opción si el cliente tiene mucha documentación y requiere respuestas confiables."
+    },
+    {
+        "id": "chatbot_platform",
         "nombre": "Botpress / Voiceflow / plataforma chatbot + Intercom",
         "categoria": "Plataforma chatbot",
         "nivel": "Medio",
         "costo": "Medio-Alto",
         "tiempo": "1 a 4 semanas",
-        "mejor_para": "Equipos que prefieren diseñar flujos conversacionales visuales con IA y luego conectar Intercom.",
-        "descripcion": "Construir el bot en una plataforma especializada de chatbot/IA y conectarlo a Intercom con API, Webhook o integración disponible.",
-        "arquitectura": "Intercom -> Webhook/API -> Plataforma chatbot -> Knowledge Base/LLM -> Intercom handoff",
-        "pros": ["Diseño visual de conversaciones", "Manejo de intenciones", "Puede tener analítica", "Menos código que backend propio"],
-        "contras": ["Costo adicional", "Dependencia del proveedor", "Integración con Intercom puede requerir API custom"],
+        "mejor_para": "Equipos que prefieren construir flujos visuales y que negocio pueda administrarlos.",
+        "descripcion": "Crear bot en una plataforma especializada y conectarlo a Intercom mediante integración, webhook o API.",
+        "arquitectura": "Intercom -> Webhook/API -> Plataforma chatbot -> LLM/KB -> Handoff Intercom",
+        "pros": ["Flujos visuales", "Menos código", "Administrable por negocio", "Analítica conversacional"],
+        "contras": ["Costo proveedor", "Lock-in", "Integración puede requerir custom", "Limitaciones según plataforma"],
+        "necesitas": [
+            "Cuenta en plataforma chatbot.",
+            "Licencia según volumen de conversaciones/mensajes.",
+            "Conector o webhook/API con Intercom.",
+            "Diseño de intents y flujos.",
+            "Base de conocimiento.",
+            "Reglas de handoff a agentes."
+        ],
+        "inversion_inicial_usd": (500, 3000),
+        "mensual_fijo_usd": (50, 1000),
+        "mensual_variable": "Mensajes/conversaciones de la plataforma + IA + posibles add-ons.",
+        "rubros": [
+            ("Diseño/configuración", "USD 500 - 3.000", "Flujos, intents, pruebas."),
+            ("Licencia plataforma", "USD 50 - 1.000+/mes", "Depende del proveedor y volumen."),
+            ("OpenAI/LLM", "Incluido o separado", "Según plataforma."),
+            ("Mantenimiento", "USD 100 - 400/mes", "Ajuste de flujos y respuestas.")
+        ],
         "pasos": [
             "Elegir plataforma chatbot.",
-            "Crear intents: horarios, pagos, precios, sedes, soporte, agente humano.",
+            "Crear intents: horarios, pagos, precios, soporte, humano.",
             "Cargar base de conocimiento.",
             "Configurar webhook/API con Intercom.",
-            "Definir fallback y handoff a agente.",
-            "Probar conversaciones y publicar."
+            "Definir fallback y handoff.",
+            "Probar y publicar."
         ],
-        "ejemplo": "Flujo visual: saludo -> pregunta abierta -> intent detection -> respuesta FAQ o handoff",
-        "recomendacion": "Buena si el cliente quiere administrar flujos sin depender siempre de desarrollo."
-    },
-    {
-        "id": "rag_assistant",
-        "nombre": "Asistente RAG con documentos internos + Intercom",
-        "categoria": "IA documental",
-        "nivel": "Avanzado",
-        "costo": "Medio-Alto",
-        "tiempo": "3 a 8 semanas",
-        "mejor_para": "Empresas con muchos documentos, políticas, manuales o preguntas abiertas que no caben en un FAQ simple.",
-        "descripcion": "Crear un sistema RAG: indexar documentos, buscar fragmentos relevantes y generar respuesta con citas internas. Si no encuentra evidencia, escala a agente.",
-        "arquitectura": "Intercom -> Backend -> Vector DB/Buscador -> LLM -> Respuesta con fuente o handoff",
-        "pros": ["Mejor para preguntas abiertas", "Reduce alucinaciones si se exige evidencia", "Escalable a muchos documentos"],
-        "contras": ["Más desarrollo", "Hay que limpiar documentos", "Requiere evaluación continua"],
-        "pasos": [
-            "Recolectar documentos oficiales.",
-            "Limpiar y dividir documentos en fragmentos.",
-            "Crear embeddings y almacenarlos en vector DB o buscador.",
-            "Recibir mensaje de Intercom vía Webhook.",
-            "Buscar contexto relevante.",
-            "Generar respuesta solo con información encontrada.",
-            "Si no hay evidencia suficiente, escalar a agente.",
-            "Medir precisión y actualizar base."
-        ],
-        "ejemplo": "Cliente pregunta política de garantía -> Bot busca política oficial -> responde y si no encuentra el producto exacto escala.",
-        "recomendacion": "Ideal si las respuestas deben ser confiables y basadas en documentos internos."
+        "ejemplo": "Flujo visual: saludo -> pregunta abierta -> intención -> respuesta FAQ o handoff.",
+        "recomendacion": "Buena si el equipo de negocio quiere gestionar conversaciones sin depender siempre de desarrollo."
     }
 ]
 
@@ -166,17 +269,27 @@ FAQ = {
 }
 ESCALATION_KEYWORDS = ["reclamo", "queja", "cancelar", "devolución", "devolucion", "factura", "garantía", "garantia", "asesor", "humano", "agente"]
 
-st.title("🧭 Explorador de soluciones IA para Intercom sin usar Fin")
-st.caption("Prototipo investigativo para comparar OpenAI, Zapier, Make, n8n, plataformas chatbot y backend propio.")
+st.title("💸 Explorador de soluciones IA para Intercom sin Fin: opciones + inversión")
+st.caption("Comparador investigativo para estimar qué se necesita, cuánto podría costar y cómo implementar cada alternativa.")
 
 with st.sidebar:
-    st.header("🔎 Filtros de investigación")
-    texto = st.text_input("Buscar opción", placeholder="Ej: OpenAI, Zapier, Make, n8n, RAG")
+    st.header("🔎 Filtros")
+    texto = st.text_input("Buscar opción", placeholder="Python, OpenAI, Zapier, Make, n8n, RAG")
     categorias = sorted(set(s["categoria"] for s in SOLUTIONS))
     categoria = st.selectbox("Categoría", ["Todas"] + categorias)
     nivel = st.selectbox("Nivel técnico", ["Todos", "Básico-Medio", "Medio", "Medio-Avanzado", "Avanzado"])
     st.divider()
-    st.header("⚙️ Simulación")
+    st.header("🧮 Supuestos de costos")
+    usd_to_cop = st.number_input("TRM estimada COP por USD", min_value=3000, max_value=6000, value=USD_TO_COP_DEFAULT, step=50)
+    conversaciones_mes = st.number_input("Conversaciones al mes", min_value=100, max_value=200000, value=5000, step=100)
+    pct_ia = st.slider("% conversaciones que procesa IA", 10, 100, 60, 5)
+    tokens_in = st.number_input("Tokens entrada promedio", min_value=100, max_value=10000, value=1200, step=100)
+    tokens_out = st.number_input("Tokens salida promedio", min_value=50, max_value=5000, value=350, step=50)
+    input_price = st.number_input("USD / 1M tokens entrada", min_value=0.01, max_value=50.0, value=0.75, step=0.05)
+    output_price = st.number_input("USD / 1M tokens salida", min_value=0.01, max_value=100.0, value=4.50, step=0.10)
+    st.caption("Valores por defecto orientativos para un modelo económico/mini. Ajusta con el precio real del proveedor.")
+    st.divider()
+    st.header("⚙️ Simulación bot")
     company_name = st.text_input("Empresa", value="Mi Empresa")
     queue_size = st.number_input("Personas en espera", min_value=0, value=12)
     high_demand_threshold = st.number_input("Umbral alta demanda", min_value=1, value=10)
@@ -190,7 +303,16 @@ if categoria != "Todas":
 if nivel != "Todos":
     filtered = [s for s in filtered if s["nivel"] == nivel]
 
-left, right = st.columns([1.05, 1.45], gap="large")
+ia_conversations = conversaciones_mes * pct_ia / 100
+ai_monthly = (ia_conversations * tokens_in / 1_000_000 * input_price) + (ia_conversations * tokens_out / 1_000_000 * output_price)
+
+def usd(x):
+    return f"USD {x:,.0f}".replace(",", ".")
+
+def cop(x):
+    return f"COP {x*usd_to_cop:,.0f}".replace(",", ".")
+
+left, right = st.columns([1.0, 1.55], gap="large")
 
 with left:
     st.subheader("📚 Opciones encontradas")
@@ -199,25 +321,55 @@ with left:
         selected_name = None
     else:
         names = [s["nombre"] for s in filtered]
-        selected_name = st.radio("Elige una opción para ver el paso a paso", names, label_visibility="collapsed")
-        st.info("Tip: si el cliente no quiere Fin, las rutas más fuertes son: OpenAI custom, Make, Zapier, n8n o RAG documental.")
+        selected_name = st.radio("Elige una opción", names, label_visibility="collapsed")
+        st.info("La opción propia con Python queda incluida como alternativa principal de producción.")
         st.markdown("### Comparador rápido")
         for s in filtered:
-            st.markdown(f"**{s['nombre']}**  \n{s['categoria']} · {s['nivel']} · {s['tiempo']}")
+            ini = s["inversion_inicial_usd"]
+            mon = s["mensual_fijo_usd"]
+            st.markdown(f"**{s['nombre']}**  \n{s['categoria']} · {s['nivel']} · Inicial {usd(ini[0])}-{usd(ini[1])} · Mensual fijo {usd(mon[0])}-{usd(mon[1])}")
 
 with right:
-    st.subheader("🧩 Detalle y paso a paso")
+    st.subheader("🧩 Detalle, inversión y paso a paso")
     if selected_name:
         s = next(x for x in filtered if x["nombre"] == selected_name)
-        m1, m2, m3 = st.columns(3)
+        ini_low, ini_high = s["inversion_inicial_usd"]
+        mon_low, mon_high = s["mensual_fijo_usd"]
+        total_low = mon_low + ai_monthly
+        total_high = mon_high + ai_monthly
+
+        m1, m2, m3, m4 = st.columns(4)
         m1.metric("Nivel", s["nivel"])
         m2.metric("Tiempo", s["tiempo"])
-        m3.metric("Costo", s["costo"])
+        m3.metric("Inicial estimado", f"{usd(ini_low)}-{usd(ini_high)}")
+        m4.metric("Mensual + IA", f"{usd(total_low)}-{usd(total_high)}")
+
         st.markdown(f"### {s['nombre']}")
         st.write("**Mejor para:**", s["mejor_para"])
         st.write(s["descripcion"])
+
+        st.markdown("#### 💰 Inversión estimada")
+        c1, c2 = st.columns(2)
+        with c1:
+            st.metric("Inicial en COP", f"{cop(ini_low)} - {cop(ini_high)}")
+            st.metric("Costo IA estimado/mes", f"{usd(ai_monthly)} / {cop(ai_monthly)}")
+        with c2:
+            st.metric("Mensual total estimado USD", f"{usd(total_low)} - {usd(total_high)}")
+            st.metric("Mensual total estimado COP", f"{cop(total_low)} - {cop(total_high)}")
+        st.caption("Estimación referencial. Cambia mucho por volumen, modelo IA, plan contratado, tareas/operaciones y alcance de desarrollo.")
+
+        st.markdown("#### 🧾 Rubros de inversión")
+        for name, amount, note in s["rubros"]:
+            st.write(f"**{name}:** {amount}. {note}")
+        st.write("**Variable principal:**", s["mensual_variable"])
+
+        st.markdown("#### ✅ Qué habría que tener para usar esta opción")
+        for req in s["necesitas"]:
+            st.write(f"- {req}")
+
         st.markdown("#### Arquitectura")
         st.code(s["arquitectura"], language="text")
+
         a, b = st.columns(2)
         with a:
             st.markdown("#### Pros")
@@ -227,9 +379,11 @@ with right:
             st.markdown("#### Contras")
             for c in s["contras"]:
                 st.write(f"⚠️ {c}")
+
         st.markdown("#### Paso a paso")
         for i, step in enumerate(s["pasos"], 1):
             st.write(f"**{i}.** {step}")
+
         st.markdown("#### Ejemplo")
         st.code(s["ejemplo"], language="text")
         st.success(s["recomendacion"])
@@ -261,15 +415,12 @@ if question:
     st.session_state.messages.append({"role": "assistant", "content": bot_response})
 
 st.divider()
-st.subheader("✅ Recomendación ejecutiva")
+st.subheader("✅ Lectura ejecutiva")
 st.markdown("""
-Si el cliente **no quiere usar Fin**, la decisión puede ir así:
-
-1. **Demo rápida:** Zapier + OpenAI o Make + OpenAI.  
-2. **Automatización visual más controlada:** n8n o Make.  
-3. **Producción robusta:** Backend Python + Intercom API/Webhooks + OpenAI/Azure OpenAI.  
-4. **Muchos documentos internos:** RAG documental + Intercom.  
-5. **Equipo no técnico que diseña flujos:** Botpress/Voiceflow/plataforma chatbot + Intercom.
+- **Más rápida para demo:** Zapier + OpenAI.
+- **Más visual y flexible no-code:** Make + OpenAI.
+- **Más balance entre control y costo:** n8n + OpenAI.
+- **Más robusta para producción:** Solución propia con Python + Intercom API/Webhooks + OpenAI/Azure OpenAI.
+- **Más confiable con documentos:** RAG documental + Intercom.
 """)
-
 st.caption(f"Última actualización del prototipo: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
